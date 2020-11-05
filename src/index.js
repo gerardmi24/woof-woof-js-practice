@@ -18,26 +18,79 @@ dogSpan.dataset.id = dog.id
 dogSpan.innerHTML = `
 ${dog.name}
 `
+
+dogSpan.addEventListener('click', e => {
+    oneDog(e.target.dataset.id)
+})
+
+    function oneDog(id){
+    // console.log(id)
+    fetch(BASEURL + id)
+    .then(resp => resp.json())
+    .then(addToContainer)
+}
+
+    const addToContainer = (dog) => {
+        //console.log(dog)
+        const dogContainer = document.getElementById('dog-summary-container')
+        const dogInfo = document.getElementById('dog-info')
+        //console.log(dogInfo)
+        dogInfo.innerHTML = ""
+
+        const dogName = document.createElement('h2')
+        dogName.innerHTML = dog.name
+        const dogPic = document.createElement('img')
+        dogPic.src = dog.image
+        const dogButton = document.createElement("button")
+        dogButton.innerText = dog.isGoodDog ? "Good Dog!" : "Bad Dog!"
+        dogButton.dataset.id = dog.id
+        dogButton.addEventListener("click", toggleDogStatus)
+
+        dogInfo.append(dogName, dogPic, dogButton)
+    }
+
 dogDiv.append(dogSpan)
 }
 
 
-// When a user clicks on a pup's `span` in the dog bar, that pup's
-// info (`image`, `name`, and `isGoodDog` status) should show up in
-// the `div` with the id of `"dog-info"`. When you have the pup's
-// information, the dog info `div` should have the following children:
-//  - an `img` tag with the pup's image url
-//  - an `h2` with the pup's name
-//  - a `button` that says `"Good Dog!"` or `"Bad Dog!"`
-//  based on whether `isGoodDog` is true or false.
-
-//   <img src=dog_image_url>
-//   <h2>Mr. Bonkers</h2>
-//   <button>Good Dog!</but
+// const clickDog = dog => {
+//     dogDiv.addEventListener('click', e => {
+//         //console.log('click')
+//         console.log('data-id span')
+//         if(e.target.matches('span data-id')) {
+//         console.log('click')
 
 
+//         }
+//     })
+// }
+const toggleDogStatus = (e) => {
+    let goodOrBad
+    // console.log(e.target.innerText)
+    if(e.target.innerText === 'Good Dog!') {
+        e.target.innerText = "Bad Dog!"
+        goodOrBad = false
+    }
+        else {
+            e.target.innerText = "Good Dog!"
+            goodOrBad = true
+        }
+        updateDog(e.target.dataset.id, goodOrBad)
+}
 
-
-
+    const updateDog = (id, goodOrBad) => {
+        const options = {
+        method: "PATCH",
+        headers: {
+         "content-type": "application/json"
+        },
+        body: JSON.stringify({
+            isGoodDog: goodOrBad
+          })
+        }
+        return fetch(BASEURL + `/${id}`, options)
+        .then(r => r.json())
+      }
 
 fetchDogs();
+// clickDog();
